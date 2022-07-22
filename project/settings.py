@@ -34,6 +34,6 @@ CELERY_BEAT_SCHEDULE = {
         # кулдаун выполнения (минимальный - 1 минута)
         #'schedule': crontab(minute=1)
         # по секундам можно выполнять с помощью timedelta
-        'schedule': timedelta(seconds=3)
+        'schedule': timedelta(seconds=1)
     }
 }
