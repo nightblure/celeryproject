@@ -16,14 +16,14 @@ def send_tg_message(text, reciever_id=GROUP_ID):
     })
 
 
-def send_email():
+def send_email(text):
 
-    message = f'test'
+    message = text
     message = message.encode('utf-8')
 
     sender = 'vanobel159@gmail.com'
     password = 'cawzihgzhuyzromu'
-    reciever = 'sapas1303@gmail.com'
+    reciever = sender # 'sapas1303@gmail.com'
     context = ssl.create_default_context()
 
     with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
