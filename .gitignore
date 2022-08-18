@@ -3,3 +3,4 @@ __pycache__
 celerybeat-schedule.bak
 celerybeat-schedule.dir
 celerybeat-schedule.dat
+tasks_log.txt

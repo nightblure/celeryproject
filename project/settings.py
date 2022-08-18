@@ -25,7 +25,7 @@ CACHES = {
     }
 }
 
-CELERY_TASK_TRACK_STARTED = True
+# CELERY_TASK_TRACK_STARTED = True
 
 # расписание для выполнения периодических (запланированных задач)
 celery_app.conf.beat_schedule = {
