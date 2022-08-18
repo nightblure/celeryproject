@@ -1,5 +1,5 @@
 from datetime import timedelta
-from project import celery_app
+from .tasks import celery_app
 from celery.schedules import crontab
 
 # порты смотреть в докере!
@@ -11,8 +11,8 @@ RABBITMQ_BROKER_URL = f'amqp://guest:guest@localhost:{RABBITMQ_PORT}'  # 'amqp:/
 
 CELERY_BROKER_URL = REDIS_BROKER_URL
 
-# в качестве бэкенда используем redis
-CELERY_RESULT_BACKEND = 'redis://'  # f'redis://localhost:{REDIS_PORT}'
+# в качестве бэкенда (бэкенд хранит результаты тасков) используем redis
+CELERY_RESULT_BACKEND = REDIS_BROKER_URL
 
 # настройка redis
 CACHES = {
@@ -24,6 +24,8 @@ CACHES = {
         }
     }
 }
+
+CELERY_TASK_TRACK_STARTED = True
 
 # расписание для выполнения периодических (запланированных задач)
 celery_app.conf.beat_schedule = {
