@@ -30,12 +30,17 @@ CACHES = {
 # расписание для выполнения периодических (запланированных задач)
 celery_app.conf.beat_schedule = {
     # имя
-    'test_delayed_task_name': {
+    'telegram': {
         # путь к задаче. если не работает, нужно оставить только название таска
-        'task': 'scheduled_task',
+        'task': 'tg_task',
         # кулдаун выполнения (минимальный - 1 минута)
         # 'schedule': crontab(minute=1)
         # по секундам можно выполнять с помощью timedelta
+        'schedule': timedelta(seconds=2)
+    },
+
+    'email_task': {
+        'task': 'mail_task',
         'schedule': timedelta(seconds=2)
     }
 }

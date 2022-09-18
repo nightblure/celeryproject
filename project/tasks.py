@@ -22,12 +22,14 @@ celery_app.autodiscover_tasks()
 
 
 # @shared_task(name='scheduled_task')
-@celery_app.task(name='scheduled_task')
-def scheduled_task(*args):
-    pass
+@celery_app.task(name='tg_task')
+def tg_task(*args):
     send_tg_message('hi!')
-    # send_email('hello!')
 
+
+@celery_app.task(name='mail_task')
+def mail_task(*args):
+    send_email('hello!')
 
 # endregion
 
@@ -40,7 +42,7 @@ def scheduled_task(*args):
 
 # эта задача однократно выполнится в заданное время
 my_tz = timezone('Asia/Yekaterinburg')
-time = my_tz.localize(datetime.now()) + timedelta(minutes=3)
+time = my_tz.localize(datetime.now()) + timedelta(minutes=1)
 # scheduled_task.apply_async(eta=time)
 
 # endregion
@@ -51,21 +53,19 @@ time = my_tz.localize(datetime.now()) + timedelta(minutes=3)
 ЗАДАЧА: есть три таска, которые спят разное время и возвращают одно значение
 задача в том, чтобы запустить их, дождаться окончания выполнения и вывести результаты
 
-ГАЙД: запустить celery (без планировщика) и в python console вставить следующий код:
+ГАЙД: запустить celery без планировщика (celery -A project.tasks.celery_app worker -l info -P solo) 
+и в python console выполнить код:
 
 from project.tasks import *
-tasks = [task1, task2, task3]
+tasks = [task1, task2, task3]    
 tasks = {task: task.apply_async() for task in tasks}
 
 finished_tasks_count = 0
 
-while finished_tasks_count < 3:
-
-    for task in tasks:
-   
-        result = tasks[task]
-
-        if result.state == 'SUCCESS':
+while finished_tasks_count < len(tasks):
+    
+    for task in tasks: 
+        if tasks[task].state == 'SUCCESS':
             finished_tasks_count += 1
 
 # вывод результатов выполнения тасков
@@ -76,21 +76,21 @@ while finished_tasks_count < 3:
 
 @celery_app.task(name='task1', ignore_result=False)
 def task1():
-    sleep(15)
+    sleep(10)
     print('task1 finish')
     return 'task1 finish'
 
 
 @celery_app.task(name='task2', ignore_result=False)
 def task2():
-    sleep(12)
+    sleep(8)
     print('task2 finish')
     return 'task2 finish'
 
 
 @celery_app.task(name='task3', ignore_result=False)
 def task3():
-    sleep(8)
+    sleep(5)
     print('task3 finish')
     return 'task3 finish'
 
