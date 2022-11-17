@@ -2,6 +2,6 @@
 
 testing tasks with:
 * ```celery```
-* ```celery-beat```
+* celery-beat
 
 
