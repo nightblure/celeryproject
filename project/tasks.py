@@ -1,30 +1,53 @@
 from datetime import datetime, timedelta
 from time import sleep
+
 from celery import shared_task
 from celery.result import AsyncResult
+from kombu import Exchange, Queue
 from pytz import timezone
 from project.telegram import send_email, send_tg_message
 from celery import Celery
 
+# region celery instance
 # обязательно нужно импортировать файл с тасками в include, либо обычным import
 celery_app = Celery('tasks', include=['project.tasks'])
+
+celery_app.conf.task_queues = (
+    Queue('queue1', routing_key='default'),
+    Queue('queue2', routing_key='media.video'),
+)
+
 celery_app.config_from_object('project.settings', namespace='CELERY')
 celery_app.autodiscover_tasks()
+# endregion
 
 # region ПЕРИОДИЧЕСКИЕ ЗАДАЧИ ПО РАСПИСАНИЮ
 
 """ 
 1. ПЕРИОДИЧЕСКИЕ ЗАДАЧИ ПО РАСПИСАНИЮ. вызываются через schedule и celery_beat!
-1. запуск celery: celery -A project.tasks.celery_app worker -l info -P solo
-2. запуск планировщика celery_beat: celery -A project.tasks.celery_app beat -l info
-3. celery сделает все сам, нужно лишь ждать сообщений в телеге каждые 2 секунды
+    1. запуск celery: celery -A project.tasks.celery_app worker -l info -P solo
+    2. запуск планировщика celery_beat: celery -A project.tasks.celery_app beat -l info
+    3. мониторинг в flower: celery -A project.tasks.celery_app flower
 """
 
 
 # @shared_task(name='scheduled_task')
-@celery_app.task(name='tg_task')
-def tg_task(*args):
-    send_tg_message('hi!')
+@celery_app.task(name='tg_task1')
+def tg_task1(*args):
+    sleep(4.5)
+    send_tg_message('task 1!')
+
+
+@celery_app.task(name='tg_task2')
+def tg_task2(*args):
+    sleep(3)
+    send_tg_message('task 2!')
+
+
+@celery_app.task(name='tg_task3')
+def tg_task3(*args):
+    sleep(3)
+    send_tg_message('task 3!')
 
 
 @celery_app.task(name='mail_task')
@@ -39,11 +62,6 @@ def mail_task(*args):
 2. ОТЛОЖЕННЫЕ ЗАДАЧИ (ВЫПОЛНЯЮТСЯ 1 РАЗ В ОТЛИЧИЕ ОТ ПЕРИОДИЧЕСКИХ)
 чтобы они выполнялись достаточно запустить ТОЛЬКО celery, а затем запустить этот модуль
 """
-
-# эта задача однократно выполнится в заданное время
-my_tz = timezone('Asia/Yekaterinburg')
-time = my_tz.localize(datetime.now()) + timedelta(minutes=1)
-# scheduled_task.apply_async(eta=time)
 
 # endregion
 
